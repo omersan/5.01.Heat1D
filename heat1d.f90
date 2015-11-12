@@ -135,12 +135,18 @@ subroutine FTCS(nx,dx,dt,t,alpha,x,u)
 implicit none
 integer::nx,i
 real*8 ::dx,dt,t,r,alpha,f
-real*8 ::u(0:nx),x(0:nx)
+real*8 ::u(0:nx),x(0:nx),v(0:nx)
 
 r = alpha*dt/(dx*dx)
 
+!previous step (t=n)
+do i=0,nx
+v(i) = u(i)
+end do
+
+!update (t=n+1)
 do i=1,nx-1
-u(i) = u(i) + r*(u(i+1)-2.0d0*u(i)+u(i-1)) + dt*f(t,x(i)) 
+u(i) = v(i) + r*(v(i+1)-2.0d0*v(i)+v(i-1)) + dt*f(t,x(i)) 
 end do
 
 end 
@@ -172,7 +178,7 @@ r(1)   = r(1) - a(1)*u(0)     !b.c.
 r(nx-1) = r(nx-1) - c(nx-1)*u(nx) !b.c.
 call tdma(a,b,c,r,q,1,nx-1)
 
-!assign solutions to y
+!assign solutions to u
 do i=1,nx-1
 u(i)=q(i)
 end do
